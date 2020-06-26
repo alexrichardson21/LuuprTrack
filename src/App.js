@@ -21,6 +21,9 @@ import TrackHeader from "./TrackHeader";
 import LoopBubble from "./LoopBubble";
 import LoopContainer from "./LoopContainer";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import PatternDrawer from "./PatternDrawer";
+import clsx from "clsx";
+
 // import HeadsetIcon from '@material-ui/icons/Headset';
 const theme = createMuiTheme({
   palette: {
@@ -31,21 +34,49 @@ const theme = createMuiTheme({
 const useStyles = makeStyles(theme => ({
   root: {
     marginTop: 15,
-    marginLeft: theme.spacing(1.5),
-    marginRight: theme.spacing(1.5),
+
+    // width: '80%',
     borderRadius: 15,
-    // width: 500,
+
     height: 100
+  },
+
+  tracks: {
+    marginLeft: theme.spacing(1.5)
+  },
+  tracksOpen: {
+    // marginRight: theme.spacing(25),
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen
+    }),
+    width: `calc(100% - ${220}px)`
+  },
+  tracksClose: {
+    // marginRight: theme.spacing(10),
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen
+    }),
+    // overflowX: "hidden",
+    width: `calc(100% - ${110}px)`
+    // [theme.breakpoints.up("sm")]: {
+    //   width: theme.spacing(7) + 1
+    // }
   },
   track: {
     background: "#343434",
     borderRadius: 15,
+    // width: '90%',
     [theme.breakpoints.up("sm")]: {
       marginRight: theme.spacing(4)
     },
     [theme.breakpoints.down("sm")]: {
       marginBottom: theme.spacing(4)
     }
+  },
+  trackContainer: {
+    // width: '90%'
   },
 
   draggingTrack: {
@@ -129,11 +160,42 @@ const sampleTrackData = [
   }
 ];
 
+const samplePatternData = [
+  {
+    id: 0,
+    name: null,
+    loops: [
+      {
+        trackId: 0,
+        loopId: 2
+      }
+    ],
+    isPlaying: false
+  },
+  {
+    id: 1,
+    name: "Verse 1",
+    loops: [
+      {
+        trackId: 1,
+        loopId: 1
+      },
+      {
+        trackId: 0,
+        loopId: 2
+      }
+    ],
+    isPlaying: false
+  }
+];
+
 export default function Tracks() {
   const classes = useStyles();
   const [tracks, setTracks] = React.useState(sampleTrackData);
+  const [patterns, setPatterns] = React.useState(samplePatternData);
   const [isDraggingTrack, setIsDraggingTrack] = React.useState(false);
   const isBigScreen = useMediaQuery(theme.breakpoints.up("sm"));
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
 
   const trackLayout = tracks.map((track, index) => (
     <Draggable
@@ -166,6 +228,7 @@ export default function Tracks() {
                 direction={"row"}
                 justify="flex-start"
                 alignItems={"center"}
+                className={classes.trackContainer}
               >
                 <Grid item>
                   <TrackHeader
@@ -174,7 +237,7 @@ export default function Tracks() {
                     dragHandleProps={provided.dragHandleProps}
                   />
                 </Grid>
-                <Grid item style={{ marginLeft: 20 }}>
+                <Grid xs item style={{ marginLeft: 20 }}>
                   <LoopContainer
                     loops={track.loops}
                     trackId={track.trackId}
@@ -246,7 +309,12 @@ export default function Tracks() {
   };
 
   return (
-    <div className="App">
+    <div
+      className={clsx(classes.tracks, {
+        [classes.tracksOpen]: isDrawerOpen,
+        [classes.tracksClose]: !isDrawerOpen
+      })}
+    >
       <DragDropContext
         onDragEnd={e => onDragEnd(e)}
         onBeforeCapture={() => setIsDraggingTrack(true)}
@@ -267,6 +335,42 @@ export default function Tracks() {
           )}
         </Droppable>
       </DragDropContext>
+      <PatternDrawer
+        patterns={patterns}
+        playPatternCallback={i => {
+          console.log(i);
+          setTracks(
+            tracks.map(t => ({
+              ...t,
+              loops: t.loops.map(l => ({ ...l, isPlaying: false }))
+            }))
+          );
+          if (!patterns[i].isPlaying) {
+            patterns[i].loops.forEach(l => {
+              const trackIndex = tracks.findIndex(t => t.trackId === l.trackId);
+              const a = tracks.slice();
+              let b = a[trackIndex].loops.slice();
+              const loopIndex = b.findIndex(m => m.loopId === l.loopId);
+              const p = b[loopIndex].isPlaying;
+              if (!p) {
+                b = b.map(l => ({ ...l, isPlaying: false }));
+              }
+              a[trackIndex].loops = b;
+              // console.log(a);
+              b[loopIndex].isPlaying = !p;
+              setTracks(a);
+            });
+          } else {
+          }
+        }}
+        setNameCallback={(name, i) => {
+          const a = patterns.slice();
+          a[i].name = name;
+          setPatterns(a);
+        }}
+        setOpenCallback={t => setIsDrawerOpen(t)}
+        open={isDrawerOpen}
+      />
     </div>
   );
 }

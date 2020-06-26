@@ -15,6 +15,7 @@ import {
   GridList,
   GridListTile
 } from "@material-ui/core";
+import HorizontalScroll from "react-scroll-horizontal";
 import HeadsetIcon from "@material-ui/icons/Headset";
 import VolumeOffIcon from "@material-ui/icons/VolumeOff";
 import MoreVertIcon from "@material-ui/icons/More";
@@ -22,6 +23,7 @@ import { withStyles, ThemeProvider } from "@material-ui/styles";
 import TrackHeader from "./TrackHeader";
 import LoopBubble from "./LoopBubble";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import PatternDrawer from "./PatternDrawer";
 
 const sections = ["yuh huh", "ya bish", "jabrony"];
 
@@ -37,9 +39,11 @@ const useStyles = makeStyles(theme => ({
     overflow: "hidden"
   },
   gridList: {
-    // display: 'flex',
-    flexWrap: "nowrap",
-    transform: "translateZ(0)"
+    display: "flex",
+    flexWrap: "nowrap"
+    // transform: "translateZ(0)",
+    // width: '80%',
+    // height: 67
     // justifyContent: 'space-around',
     // overflow: 'hidden',
     // backgroundColor: theme.palette.background.paper,
@@ -66,56 +70,57 @@ const useStyles = makeStyles(theme => ({
 export default function LoopContainer(props) {
   const classes = useStyles();
   const [isGrabbedLoop, setIsGrabbedLoop] = React.useState(false);
-  const drawer = (
-    <Drawer
-      anchor="right"
-      classes={{
-        paper: classes.drawerPaper
-      }}
-      variant="permanent"
-      open
-    >
-      <Droppable isCombineEnabled droppableId="sections" direction="vertical">
-        {(provided, snapshot) => (
-          <Grid
-            container
-            direction="column"
-            spacing={3}
-            ref={provided.innerRef}
-            // style={getListStyle(snapshot.isDraggingOver)}
-            {...provided.droppableProps}
-          >
-            {sections.map((item, index) => (
-              <Draggable key={item} draggableId={item} index={index}>
-                {(provided, snapshot) => (
-                  <Grid
-                    item
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                    className={
-                      snapshot.combineWith ? classes.hoverOver : classes.section
-                    }
+  // const drawer = (
+  //   <Drawer
+  //     anchor="right"
+  //     classes={{
+  //       paper: classes.drawerPaper
+  //     }}
+  //     variant="permanent"
+  //     open
+  //   >
+  //     <Droppable isCombineEnabled droppableId="sections" direction="vertical">
+  //       {(provided, snapshot) => (
+  //         <Grid
+  //           container
+  //           direction="column"
+  //           spacing={3}
+  //           ref={provided.innerRef}
+  //           // style={getListStyle(snapshot.isDraggingOver)}
+  //           {...provided.droppableProps}
+  //         >
+  //           {sections.map((item, index) => (
+  //             <Draggable key={item} draggableId={item} index={index}>
+  //               {(provided, snapshot) => (
+  //                 <Grid
+  //                   item
+  //                   ref={provided.innerRef}
+  //                   {...provided.draggableProps}
+  //                   {...provided.dragHandleProps}
+  //                   className={
+  //                     snapshot.combineWith ? classes.hoverOver : classes.section
+  //                   }
 
-                    // style={getItemStyle(
-                    //   snapshot.isDragging,
-                    //   provided.draggableProps.style
-                    // )}
-                  >
-                    <VolumeOffIcon
-                    // items={item.loops.length}
-                    // color={item.color}
-                    />
-                  </Grid>
-                )}
-              </Draggable>
-            ))}
-            {provided.placeholder}
-          </Grid>
-        )}
-      </Droppable>
-    </Drawer>
-  );
+  //                   // style={getItemStyle(
+  //                   //   snapshot.isDragging,
+  //                   //   provided.draggableProps.style
+  //                   // )}
+  //                 >
+  //                   <VolumeOffIcon
+  //                   // items={item.loops.length}
+  //                   // color={item.color}
+  //                   />
+  //                 </Grid>
+  //               )}
+  //             </Draggable>
+  //           ))}
+  //           {provided.placeholder}
+  //         </Grid>
+  //       )}
+  //     </Droppable>
+  //   </Drawer>
+  // );
+  const drawer = <div />;
 
   const loops =
     props.loops &&
@@ -167,13 +172,14 @@ export default function LoopContainer(props) {
             spacing={2}
             wrap="nowrap"
             // className={classes.gridList}
-            // style={{ whiteSpace: "nowrap" }}
+            // style={{ width: 400, overflow: "hidden" }}
             // style={getListStyle(snapshot.isDraggingOver)}
             {...provided.droppableProps}
           >
+            {/* <HorizontalScroll> */}
             {loops}
-
             {provided.placeholder}
+            {/* </HorizontalScroll> */}
           </Grid>
           // </div>
         )}
